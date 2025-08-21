@@ -14,7 +14,8 @@
 #include <ATen/ATen.h>
 #include <ATen/cuda/CUDAContext.h>
 
-#include "prroi_pooling_gpu_impl.cuh"
+// #include <THC/THC.h>
+
 
 
 at::Tensor prroi_pooling_forward_cuda(const at::Tensor &features, const at::Tensor &rois, int pooled_height, int pooled_width, float spatial_scale) {
@@ -27,7 +28,9 @@ at::Tensor prroi_pooling_forward_cuda(const at::Tensor &features, const at::Tens
 
     cudaStream_t stream = at::cuda::getCurrentCUDAStream();
     if (output.numel() == 0) {
-        AT_CUDA_CHECK(cudaStreamSynchronize(stream));
+      
+        AT_CUDA_CHECK(cudaGetLastError());
+
         return output;
     }
 
@@ -37,7 +40,8 @@ at::Tensor prroi_pooling_forward_cuda(const at::Tensor &features, const at::Tens
         top_count
     );
 
-    AT_CUDA_CHECK(cudaStreamSynchronize(stream));
+    AT_CUDA_CHECK(cudaGetLastError());
+  
     return output;
 }
 
@@ -57,7 +61,9 @@ at::Tensor prroi_pooling_backward_cuda(
 
     cudaStream_t stream = at::cuda::getCurrentCUDAStream();
     if (output.numel() == 0) {
-        AT_CUDA_CHECK(cudaStreamSynchronize(stream));
+      
+        AT_CUDA_CHECK(cudaGetLastError());
+      
         return features_diff;
     }
 
@@ -68,8 +74,9 @@ at::Tensor prroi_pooling_backward_cuda(
         nr_channels, height, width, pooled_height, pooled_width, spatial_scale,
         top_count, bottom_count
     );
-
-    AT_CUDA_CHECK(cudaStreamSynchronize(stream));
+  
+    AT_CUDA_CHECK(cudaGetLastError());
+  
     return features_diff;
 }
 
@@ -88,7 +95,9 @@ at::Tensor prroi_pooling_coor_backward_cuda(
 
     cudaStream_t stream = at::cuda::getCurrentCUDAStream();
     if (output.numel() == 0) {
-        AT_CUDA_CHECK(cudaStreamSynchronize(stream));
+      
+        AT_CUDA_CHECK(cudaGetLastError());
+      
         return coor_diff;
     }
 
@@ -100,7 +109,9 @@ at::Tensor prroi_pooling_coor_backward_cuda(
         top_count, bottom_count
     );
 
-    AT_CUDA_CHECK(cudaStreamSynchronize(stream));
+  
+    AT_CUDA_CHECK(cudaGetLastError());
+  
     return coor_diff;
 }
 
